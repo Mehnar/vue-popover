@@ -1,7 +1,7 @@
 {
-  "name": "",
+  "name": "vue-popover",
   "version": "1.0.0",
-  "description": "Vue 2 application with webpack 4 boilerplate",
+  "description": "popover-gh-pages",
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --progress",
     "staging": "cross-env NODE_ENV=staging webpack",
@@ -9,19 +9,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/samteb/vue-2-webpack-4-boilerplate"
+    "url": "https://github.com/Mehnar/vue-popover"
   },
   "keywords": [
     "Vue",
-    "Webpack 4"
+    "Popover",
+    "Popup"
   ],
-  "author": "samteb <sam.teboul@gmail.com>",
+  "author": "mehnar <mehnar.oye@gmail.com>",
   "license": "MIT",
   "homepage": "https://github.com/Mehnar/vue-popover",
   "dependencies": {
     "@babel/polyfill": "~7.2",
-    "vue": "~2.6",
-    "vue-router": "~3.0"
+    "vue": "~2.6"
   },
   "devDependencies": {
     "@babel/core": "~7.2",
@@ -52,15 +52,10 @@
     "node-sass": "~4.12",
     "optimize-css-assets-webpack-plugin": "~5.0",
     "sass-loader": "~7.1",
-    "uglifyjs-webpack-plugin": "~1.2",
     "vue-loader": "~15.6",
     "vue-style-loader": "~4.1",
     "vue-template-compiler": "~2.6",
     "webpack": "~4.29",
-    "webpack-bundle-analyzer": "~3.3",
-    "webpack-cli": "~3.2",
-    "webpack-dev-server": "~3.1",
-    "webpack-hot-middleware": "~2.24",
     "webpack-merge": "~4.2"
   }
 }
