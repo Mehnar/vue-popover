@@ -19,25 +19,24 @@
         'top': `${top}px`,
       }"
       :class="{
-        'placement-left': localPlacement === $const.PLACEMENT_LEFT,
-        'placement-left-top': localPlacement === $const.PLACEMENT_LEFT_TOP,
-        'placement-left-bottom': localPlacement === $const.PLACEMENT_LEFT_BOTTOM,
+        'placement-left': localPlacement === PLACEMENT_LEFT,
+        'placement-left-top': localPlacement === PLACEMENT_LEFT_TOP,
+        'placement-left-bottom': localPlacement === PLACEMENT_LEFT_BOTTOM,
 
-        'placement-top-left': localPlacement === $const.PLACEMENT_TOP_LEFT,
-        'placement-top': localPlacement === $const.PLACEMENT_TOP,
-        'placement-top-right': localPlacement === $const.PLACEMENT_TOP_RIGHT,
+        'placement-top-left': localPlacement === PLACEMENT_TOP_LEFT,
+        'placement-top': localPlacement === PLACEMENT_TOP,
+        'placement-top-right': localPlacement === PLACEMENT_TOP_RIGHT,
 
-        'placement-right-top': localPlacement === $const.PLACEMENT_RIGHT_TOP,
-        'placement-right': localPlacement === $const.PLACEMENT_RIGHT,
-        'placement-right-bottom': localPlacement === $const.PLACEMENT_RIGHT_BOTTOM,
+        'placement-right-top': localPlacement === PLACEMENT_RIGHT_TOP,
+        'placement-right': localPlacement === PLACEMENT_RIGHT,
+        'placement-right-bottom': localPlacement === PLACEMENT_RIGHT_BOTTOM,
 
-        'placement-bottom-left': localPlacement === $const.PLACEMENT_BOTTOM_LEFT,
-        'placement-bottom': localPlacement === $const.PLACEMENT_BOTTOM,
-        'placement-bottom-right': localPlacement === $const.PLACEMENT_BOTTOM_RIGHT,
+        'placement-bottom-left': localPlacement === PLACEMENT_BOTTOM_LEFT,
+        'placement-bottom': localPlacement === PLACEMENT_BOTTOM,
+        'placement-bottom-right': localPlacement === PLACEMENT_BOTTOM_RIGHT,
 
-        'without-arrow': (mode === $const.MODE_SELECT || withoutArrow),
+        'without-arrow': (mode === MODE_SELECT || withoutArrow),
         'popover-unclose-outer': !localCloseOuterClick && showCross,
-        'popover-right-selected': localPlacement === $const.PLACEMENT_RIGHT_SELECTED,
       }"
       class="body-popover"
     >
@@ -56,64 +55,29 @@
 </template>
 
 <script>
-import throttle from 'lodash/throttle';
+import throttle from 'lodash.throttle';
 import Bus from './popoverBus';
 
-const STATUS_CLOSE = 'close';
-const STATUS_OPEN = 'open';
-
-const DEFAULT_MARGIN = 10;
-
-const MODE_DEFAULT = 'default';
-const MODE_SELECT = 'select';
-
-const $positions = {
-  PLACEMENT_RIGHT,
-  PLACEMENT_RIGHT_BOTTOM,
-
-  PLACEMENT_BOTTOM_RIGHT,
-  PLACEMENT_BOTTOM,
-  PLACEMENT_BOTTOM_LEFT,
-
-  PLACEMENT_LEFT_BOTTOM,
-  PLACEMENT_LEFT,
-  PLACEMENT_LEFT_TOP,
-
-  PLACEMENT_TOP_LEFT,
-  PLACEMENT_TOP,
-  PLACEMENT_TOP_RIGHT,
-
-  PLACEMENT_RIGHT_TOP,
-};
+import {
+  $placements,
+  DEFAULT_MARGIN,
+  MODE_DEFAULT,
+  MODE_SELECT,
+  STATUS_CLOSE,
+  STATUS_OPEN,
+} from './consts';
 
 export default {
   name: 'Popover',
   props: {
     defaultPlacement: {
       type: String,
-      default() { return this.$const.PLACEMENT_BOTTOM_RIGHT; },
+      default() { return $placements.PLACEMENT_BOTTOM_RIGHT; },
     },
     placements: {
       type: Array,
       default() {
-        return [
-          this.$const.PLACEMENT_RIGHT,
-          this.$const.PLACEMENT_RIGHT_BOTTOM,
-
-          this.$const.PLACEMENT_BOTTOM_RIGHT,
-          this.$const.PLACEMENT_BOTTOM,
-          this.$const.PLACEMENT_BOTTOM_LEFT,
-
-          this.$const.PLACEMENT_LEFT_BOTTOM,
-          this.$const.PLACEMENT_LEFT,
-          this.$const.PLACEMENT_LEFT_TOP,
-
-          this.$const.PLACEMENT_TOP_LEFT,
-          this.$const.PLACEMENT_TOP,
-          this.$const.PLACEMENT_TOP_RIGHT,
-
-          this.$const.PLACEMENT_RIGHT_TOP,
-        ];
+        return Object.values($placements);
       },
     },
     width: {
@@ -173,6 +137,8 @@ export default {
       DEFAULT_MARGIN,
       MODE_DEFAULT,
       MODE_SELECT,
+
+      ...$placements
     };
   },
   computed: {
@@ -180,7 +146,7 @@ export default {
       return this.placements.filter(item => item !== this.localPlacement && !this.passPlacements.includes(item));
     },
     isModeSelect() {
-      return this.mode === this.$const.MODE_SELECT;
+      return this.mode === this.MODE_SELECT;
     },
   },
   watch: {
@@ -200,7 +166,7 @@ export default {
     this.$on('update-popover', this.throttledUpdatePosition);
 
     if (this.isModeSelect) {
-      this.localPlacement = this.$const.PLACEMENT_BOTTOM;
+      this.localPlacement = this.this.PLACEMENT_BOTTOM;
     }
   },
   mounted() {
@@ -257,102 +223,107 @@ export default {
       const left = this.fixed ? this.coords.left : 0;
       const heightPopover = this.$refs.popover.getBoundingClientRect().height;
 
-      if (this.localPlacement === this.$const.PLACEMENT_LEFT_BOTTOM) {
-        this.top = (Math.round(top) + Math.round(height / 2)) - Math.round(heightPopover * 0.05);
-        this.left = Math.round(left) - Math.round(this.width) - this.DEFAULT_MARGIN;
+      switch (this.localPlacement) {
+        case this.PLACEMENT_LEFT_BOTTOM: {
+          this.top = (Math.round(top) + Math.round(height / 2)) - Math.round(heightPopover * 0.05);
+          this.left = Math.round(left) - Math.round(this.width) - this.DEFAULT_MARGIN;
 
-        return;
-      }
-
-      if (this.localPlacement === this.$const.PLACEMENT_LEFT) {
-        this.top = Math.round(top) + (Math.round(height / 2) - (heightPopover / 2));
-        this.left = Math.round(left) - Math.round(this.width) - this.DEFAULT_MARGIN;
-
-        return;
-      }
-
-      if (this.localPlacement === this.$const.PLACEMENT_LEFT_TOP) {
-        this.top = Math.round(top) + (Math.round(height / 2) - heightPopover) + Math.round(heightPopover * 0.05);
-        this.left = Math.round(left) - Math.round(this.width) - this.DEFAULT_MARGIN;
-
-        return;
-      }
-
-      if (this.localPlacement === this.$const.PLACEMENT_TOP_LEFT) {
-        this.top = Math.round(top) - Math.round(heightPopover) - this.DEFAULT_MARGIN;
-        this.left = (Math.round(left) - Math.round(this.width)) + Math.round(width / 2) + Math.round(this.width * 0.05);
-
-        return;
-      }
-
-      if (this.localPlacement === this.$const.PLACEMENT_TOP) {
-        this.top = Math.round(top) - Math.round(heightPopover) - this.DEFAULT_MARGIN;
-        this.left = Math.round(left) + (Math.round(width / 2) - Math.round(this.width / 2));
-
-        return;
-      }
-
-      if (this.localPlacement === this.$const.PLACEMENT_TOP_RIGHT) {
-        this.top = Math.round(top) - Math.round(heightPopover) - this.DEFAULT_MARGIN;
-        this.left = Math.round(left) + (Math.round(width / 2) - Math.round(this.width * 0.05));
-
-        return;
-      }
-
-      if (this.localPlacement === this.$const.PLACEMENT_RIGHT_TOP) {
-        this.top = Math.round(top) + (Math.round(height / 2) - heightPopover) + Math.round(heightPopover * 0.05);
-        this.left = Math.round(left) + Math.round(width) + this.DEFAULT_MARGIN;
-
-        return;
-      }
-
-      if (this.localPlacement === this.$const.PLACEMENT_RIGHT) {
-        this.top = Math.round(top) + (Math.round(height / 2) - (heightPopover / 2));
-        this.left = Math.round(left) + Math.round(width) + this.DEFAULT_MARGIN;
-
-        return;
-      }
-
-      if (this.localPlacement === this.$const.PLACEMENT_RIGHT_BOTTOM) {
-        this.top = (Math.round(top) + Math.round(height / 2)) - Math.round(heightPopover * 0.05);
-        this.left = Math.round(left) + Math.round(width) + this.DEFAULT_MARGIN;
-
-        return;
-      }
-
-      if (this.localPlacement === this.$const.PLACEMENT_BOTTOM_RIGHT) {
-        this.top = Math.round(top) + Math.round(height) + this.DEFAULT_MARGIN;
-        this.left = Math.round(left) + (Math.round(width / 2) - Math.round(this.width * 0.05));
-
-        return;
-      }
-
-      if (this.localPlacement === this.$const.PLACEMENT_BOTTOM) {
-        this.top = Math.round(top) + Math.round(height) + this.DEFAULT_MARGIN;
-
-        if (this.isModeSelect) {
-          this.top -= (this.DEFAULT_MARGIN / 2);
+          return;
         }
-        this.left = (Math.round(left) - (Math.round(this.localWidth) / 2)) + (Math.round(width) / 2);
 
-        return;
+        case this.PLACEMENT_LEFT: {
+          this.top = Math.round(top) + (Math.round(height / 2) - (heightPopover / 2));
+          this.left = Math.round(left) - Math.round(this.width) - this.DEFAULT_MARGIN;
+
+          return;
+        }
+
+        case this.PLACEMENT_LEFT_TOP: {
+          this.top = Math.round(top) + (Math.round(height / 2) - heightPopover) + Math.round(heightPopover * 0.05);
+          this.left = Math.round(left) - Math.round(this.width) - this.DEFAULT_MARGIN;
+
+          return;
+        }
+
+        case this.PLACEMENT_TOP_LEFT: {
+          this.top = Math.round(top) - Math.round(heightPopover) - this.DEFAULT_MARGIN;
+          this.left = (Math.round(left) - Math.round(this.width)) + Math.round(width / 2) + Math.round(this.width * 0.05);
+
+          return;
+        }
+
+        case this.PLACEMENT_TOP: {
+          this.top = Math.round(top) - Math.round(heightPopover) - this.DEFAULT_MARGIN;
+          this.left = Math.round(left) + (Math.round(width / 2) - Math.round(this.width / 2));
+
+          return;
+        }
+
+        case this.PLACEMENT_TOP_RIGHT: {
+          this.top = Math.round(top) - Math.round(heightPopover) - this.DEFAULT_MARGIN;
+          this.left = Math.round(left) + (Math.round(width / 2) - Math.round(this.width * 0.05));
+
+          return;
+        }
+
+        case this.PLACEMENT_RIGHT_TOP: {
+          this.top = Math.round(top) + (Math.round(height / 2) - heightPopover) + Math.round(heightPopover * 0.05);
+          this.left = Math.round(left) + Math.round(width) + this.DEFAULT_MARGIN;
+
+          return;
+        }
+
+        case this.PLACEMENT_RIGHT: {
+          this.top = Math.round(top) + (Math.round(height / 2) - (heightPopover / 2));
+          this.left = Math.round(left) + Math.round(width) + this.DEFAULT_MARGIN;
+
+          return;
+        }
+
+        case this.PLACEMENT_RIGHT_BOTTOM: {
+          this.top = (Math.round(top) + Math.round(height / 2)) - Math.round(heightPopover * 0.05);
+          this.left = Math.round(left) + Math.round(width) + this.DEFAULT_MARGIN;
+
+          return;
+        }
+
+        case this.PLACEMENT_BOTTOM_RIGHT: {
+          this.top = Math.round(top) + Math.round(height) + this.DEFAULT_MARGIN;
+          this.left = Math.round(left) + (Math.round(width / 2) - Math.round(this.width * 0.05));
+
+          return;
+        }
+
+        case this.PLACEMENT_BOTTOM: {
+          this.top = Math.round(top) + Math.round(height) + this.DEFAULT_MARGIN;
+
+          if (this.isModeSelect) {
+            this.top -= (this.DEFAULT_MARGIN / 2);
+          }
+          this.left = (Math.round(left) - (Math.round(this.localWidth) / 2)) + (Math.round(width) / 2);
+
+          return;
+        }
+
+        case this.PLACEMENT_BOTTOM_LEFT: {
+          this.top = Math.round(top) + Math.round(height) + this.DEFAULT_MARGIN;
+          this.left = (Math.round(left) - Math.round(this.width)) + Math.round(width / 2) + Math.round(this.width * 0.05);
+
+          return;
+        }
+
+        case this.PLACEMENT_RIGHT_SELECTED: {
+          this.top = Math.round(top);
+          this.left = (Math.round(left) + Math.round(width)) - 4;
+
+          return;
+        }
+
+        default: {
+          this.top = 0;
+          this.left = 0;
+        }
       }
-
-      if (this.localPlacement === this.$const.PLACEMENT_BOTTOM_LEFT) {
-        this.top = Math.round(top) + Math.round(height) + this.DEFAULT_MARGIN;
-        this.left = (Math.round(left) - Math.round(this.width)) + Math.round(width / 2) + Math.round(this.width * 0.05);
-
-        return;
-      }
-
-      if (this.localPlacement === this.$const.PLACEMENT_RIGHT_SELECTED) {
-        this.top = Math.round(top);
-        this.left = (Math.round(left) + Math.round(width)) - 4;
-
-        return;
-      }
-      this.top = 0;
-      this.left = 0;
     },
     async openPopover() {
       window.addEventListener('resize', this.throttledUpdatePosition);
@@ -532,8 +503,8 @@ export default {
   border: 1px solid transparent;
 
   &.opened {
-    border-color: $neur-gray;
-    border-radius: 0 $default-border-radius $default-border-radius 0;
+    border-color: #c7d3c7;
+    border-radius: 0 5px 5px 0;
     background-color: white;
     box-shadow: 5px 6px 3px rgba(173, 176, 184, 0.3);
 
@@ -555,8 +526,8 @@ export default {
   left: 0;
   background-color: white;
   box-shadow: 0 15px 20px rgba(173, 176, 184, 0.3);
-  border: 1px solid $neur-gray;
-  border-radius: $default-border-radius;
+  border: 1px solid #c7d3c7;
+  border-radius: 5px;
   box-sizing: border-box;
   cursor: initial;
   z-index: 200;

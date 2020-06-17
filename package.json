@@ -21,6 +21,7 @@
   "homepage": "https://github.com/Mehnar/vue-popover",
   "dependencies": {
     "@babel/polyfill": "~7.2",
+    "lodash.throttle": "^4.1.1",
     "vue": "~2.6"
   },
   "devDependencies": {
